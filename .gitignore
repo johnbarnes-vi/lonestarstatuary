@@ -1,5 +1,5 @@
 /server/.env
-
+**/Dockerfile
 **/env/
 *.pdf
 *.tex
