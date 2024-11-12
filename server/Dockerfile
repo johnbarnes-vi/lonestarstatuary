@@ -1,4 +1,4 @@
-# Temporary placeholder Dockerfile
+# ~/mfp/sites/lonestarstatuary/server/Dockerfile
 FROM node:20.10.0
 WORKDIR /app
 # Create minimal express server
