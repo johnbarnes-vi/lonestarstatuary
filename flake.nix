@@ -1,5 +1,5 @@
 {
-  description = "example-node-js-flake";
+  description = "lonestarstatuary-dev-environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -10,35 +10,44 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        buildNodeJs = pkgs.callPackage "${nixpkgs}/pkgs/development/web/nodejs/nodejs.nix" {
-          python = pkgs.python3;
-        };
-        nodejs = buildNodeJs {
-          enableNpm = true;
-          version = "20.10.0"; # Updated to match production version
-          sha256 = "sha256-Q5xxqi84woYWV7+lOOmRkaVxJYBmy/1FSFhgScgTQZA=";
-        };
       in rec {
-        flakedPkgs = pkgs;
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [ 
-            nodejs
+            nodejs_20
             nodePackages.nodemon
-            stripe-cli
+            python3Full  # Use full Python installation that includes distutils
           ];
+          
           shellHook = ''
+            echo "Setting up Lone Star Statuary development environment..."
+            
             # Download dependencies
             (
-              cd react-app
-              npm install
+              if [ -f "react-app/package.json" ]; then
+                echo "Installing frontend dependencies..."
+                cd react-app
+                npm install 2>/dev/null
+              else
+                echo "Warning: react-app/package.json not found"
+              fi
             ) &
             (
-              cd server
-              npm install
+              if [ -f "server/package.json" ]; then
+                echo "Installing backend dependencies..."
+                cd server
+                npm install 2>/dev/null
+              else
+                echo "Warning: server/package.json not found"
+              fi
             ) &
 
             # Wait for both background processes to finish
             wait
+
+            echo "Development environment setup complete!"
+
+            echo "Run 'npm start' in react-app/ to start local front-end"
+            echo "Run 'npm run dev' in server/ to start local back-end"
           '';
         };
       }
