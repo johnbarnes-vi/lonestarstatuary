@@ -1,0 +1,60 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    // Contains all third-party dependencies
+    // - Massive performance impact if included
+    // - Dependencies should be typed via their @types packages
+    // - Can cause conflicts with packages' internal TypeScript settings
+    "node_modules",
+
+    // Output directories for compiled code
+    // - No need to type-check already compiled code
+    // - Would create circular dependencies in the build process
+    // - Can cause "Maximum call stack size exceeded" errors
+    "build",
+    "dist",
+
+    // Build configuration and utility scripts
+    // - Usually plain JavaScript files
+    // - Often use different environment (Node.js vs browser)
+    // - May have different TypeScript requirements than your app
+    "scripts",
+
+    // Test-related directories and files
+    // - Often have different TypeScript configuration needs
+    // - May use testing-specific globals
+    // - Could have conflicting types with production code
+    "acceptance-tests",
+    "jest",
+    "src/setupTests.ts",
+
+    // Webpack configuration
+    // - Usually JavaScript files
+    // - Uses Node.js environment
+    // - Has its own type requirements different from your app
+    "webpack"
+  ]
+}
