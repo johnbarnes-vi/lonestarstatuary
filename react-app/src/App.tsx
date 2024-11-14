@@ -1,20 +1,49 @@
-// src/App.tsx
+/**
+ * Main Application Component
+ * 
+ * This component serves as the root of the Lone Star Statuary frontend application.
+ * Currently implements a proof-of-concept interface for testing backend connectivity
+ * and file upload functionality.
+ * 
+ * Features:
+ * - Backend health check
+ * - File upload capability
+ * - Display of uploaded files
+ * - Error handling and loading states
+ * 
+ * @module App
+ */
+
 import React, { useState, useEffect } from 'react';
 
+/**
+ * Represents the response from the health check endpoint
+ */
 interface ApiResponse {
   message: string;
   timestamp: string;
 }
 
+/**
+ * Represents the response from the file upload endpoint
+ */
 interface FileResponse {
   message: string;
   fileUrl: string;
 }
 
+/**
+ * Represents the response from the file listing endpoint
+ */
 interface FilesResponse {
   files: string[];
 }
 
+/**
+ * Root application component that manages file uploads and backend communication
+ * 
+ * @returns {JSX.Element} The rendered application
+ */
 function App() {
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [uploadedFile, setUploadedFile] = useState<FileResponse | null>(null);
@@ -22,11 +51,22 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch existing files on load
+  /**
+   * Fetches existing files on component mount
+   */
   useEffect(() => {
     fetchFiles();
   }, []);
 
+  /**
+     * Performs a health check request to the backend
+     * 
+     * @async
+     * @stateChanges
+     * - loading: true -> false (tracks request status)
+     * - error: null -> string | null (tracks error state)
+     * - response: null -> ApiResponse | null (stores backend response)
+     */
   const checkBackend = async () => {
     setLoading(true);
     setError(null);
@@ -42,6 +82,18 @@ function App() {
     }
   };
 
+  /**
+   * Handles file upload events from the file input
+   * Uploads the selected file and updates the UI accordingly
+   * 
+   * @async
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The file input change event
+   * @stateChanges
+   * - loading: true -> false (tracks upload status)
+   * - error: null -> string | null (tracks upload errors)
+   * - uploadedFile: null -> FileResponse | null (stores upload response)
+   * - files: string[] -> string[] (updated via fetchFiles)
+   */
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.[0]) return;
 
@@ -67,6 +119,14 @@ function App() {
     }
   };
 
+  /**
+   * Fetches the list of previously uploaded files
+   * 
+   * @async
+   * @sideEffect Logs errors to console
+   * @stateChanges
+   * - files: string[] -> string[] (updates with fetched file URLs)
+   */
   const fetchFiles = async () => {
     try {
       const res = await fetch('/api/test/files');
@@ -77,14 +137,14 @@ function App() {
       console.error('Error fetching files:', err);
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4">
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">
           Lone Star Statuary
         </h1>
-        
+
         {/* Health Check Section */}
         <div className="mb-8">
           <button
@@ -124,8 +184,8 @@ function App() {
           {uploadedFile && (
             <div className="mt-4">
               <p className="text-green-600">{uploadedFile.message}</p>
-              <img 
-                src={uploadedFile.fileUrl} 
+              <img
+                src={uploadedFile.fileUrl}
                 alt="Uploaded file"
                 className="mt-2 max-w-full h-auto rounded"
               />
