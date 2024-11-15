@@ -57,7 +57,7 @@ function App() {
    * Fetches existing files on component mount
    */
   useEffect(() => {
-    fetchFiles();
+    fetchTestFiles();
   }, []);
 
 
@@ -86,7 +86,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchWithAuth('/api/health');
+      const res = await fetchWithAuth('/api/admin/health');
       if (!res.ok) throw new Error('API request failed');
       const data: ApiResponse = await res.json();
       setResponse(data);
@@ -109,7 +109,7 @@ function App() {
    * - uploadedFile: null -> FileResponse | null (stores upload response)
    * - files: string[] -> string[] (updated via fetchFiles)
    */
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTestFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.[0]) return;
 
     const formData = new FormData();
@@ -118,7 +118,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/test/upload', {
+      const res = await fetch('/api/disk/test/files', {
         method: 'POST',
         body: formData,
       });
@@ -126,7 +126,7 @@ function App() {
       const data: FileResponse = await res.json();
       setUploadedFile(data);
       // Refresh file list
-      fetchFiles();
+      fetchTestFiles();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
@@ -142,9 +142,9 @@ function App() {
    * @stateChanges
    * - files: string[] -> string[] (updates with fetched file URLs)
    */
-  const fetchFiles = async () => {
+  const fetchTestFiles = async () => {
     try {
-      const res = await fetch('/api/test/files');
+      const res = await fetch('/api/disk/test/files');
       if (!res.ok) throw new Error('Failed to fetch files');
       const data: FilesResponse = await res.json();
       setFiles(data.files);
@@ -228,7 +228,7 @@ function App() {
               <h2 className="text-lg font-semibold text-gray-700 mb-4">Test File Upload</h2>
               <input
                 type="file"
-                onChange={handleFileUpload}
+                onChange={handleTestFileUpload}
                 className="mb-4"
                 accept="image/*"
               />
