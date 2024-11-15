@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 /**
  * Represents the response from the health check endpoint
@@ -45,6 +46,7 @@ interface FilesResponse {
  * @returns {JSX.Element} The rendered application
  */
 function App() {
+  const { isAuthenticated, getAccessTokenSilently, loginWithRedirect, logout, user } = useAuth0();
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [uploadedFile, setUploadedFile] = useState<FileResponse | null>(null);
   const [files, setFiles] = useState<string[]>([]);
@@ -57,6 +59,19 @@ function App() {
   useEffect(() => {
     fetchFiles();
   }, []);
+
+
+  // Helper function for authenticated API calls
+  const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+    const token = await getAccessTokenSilently();
+    return fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        Authorization: `Bearer ${token}`
+      }
+    });
+  };
 
   /**
      * Performs a health check request to the backend
@@ -71,7 +86,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/health');
+      const res = await fetchWithAuth('/api/health');
       if (!res.ok) throw new Error('API request failed');
       const data: ApiResponse = await res.json();
       setResponse(data);
@@ -137,76 +152,115 @@ function App() {
       console.error('Error fetching files:', err);
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4">
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">
-          Lone Star Statuary
-        </h1>
-
-        {/* Health Check Section */}
-        <div className="mb-8">
-          <button
-            onClick={checkBackend}
-            disabled={loading}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-          >
-            {loading ? 'Checking...' : 'Check Backend Connection'}
-          </button>
-
-          {error && (
-            <div className="mt-4 text-red-600">
-              Error: {error}
-            </div>
-          )}
-
-          {response && (
-            <div className="mt-4">
-              <h2 className="text-lg font-semibold text-gray-700">Backend Response:</h2>
-              <pre className="mt-2 bg-gray-50 p-4 rounded">
-                {JSON.stringify(response, null, 2)}
-              </pre>
-            </div>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-gray-800">
+            Lone Star Statuary
+          </h1>
+          {isAuthenticated ? (
+            <button
+              onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Log Out
+            </button>
+          ) : (
+            <button
+              onClick={() => loginWithRedirect()}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Log In
+            </button>
           )}
         </div>
 
-        {/* File Upload Section */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">Test File Upload</h2>
-          <input
-            type="file"
-            onChange={handleFileUpload}
-            className="mb-4"
-            accept="image/*"
-          />
-
-          {uploadedFile && (
-            <div className="mt-4">
-              <p className="text-green-600">{uploadedFile.message}</p>
-              <img
-                src={uploadedFile.fileUrl}
-                alt="Uploaded file"
-                className="mt-2 max-w-full h-auto rounded"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Existing Files Section */}
-        <div>
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">Uploaded Files</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {files.map((fileUrl, index) => (
-              <img
-                key={index}
-                src={fileUrl}
-                alt={`Uploaded file ${index + 1}`}
-                className="w-full h-auto rounded"
-              />
-            ))}
+        {!isAuthenticated ? (
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-gray-700 mb-4">
+              Welcome to Lone Star Statuary
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Discover our collection of handcrafted classical sculptures and custom statuary commissions.
+            </p>
+            <p className="text-gray-500 text-sm">
+              Please log in to explore our full catalog and services.
+            </p>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="mb-4">
+              <p className="text-gray-600">
+                Welcome back, {user?.name}!
+              </p>
+            </div>
+
+            {/* Health Check Section */}
+            <div className="mb-8">
+              <button
+                onClick={checkBackend}
+                disabled={loading}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
+              >
+                {loading ? 'Checking...' : 'Check Backend Connection'}
+              </button>
+
+              {error && (
+                <div className="mt-4 text-red-600">
+                  Error: {error}
+                </div>
+              )}
+
+              {response && (
+                <div className="mt-4">
+                  <h2 className="text-lg font-semibold text-gray-700">Backend Response:</h2>
+                  <pre className="mt-2 bg-gray-50 p-4 rounded">
+                    {JSON.stringify(response, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            {/* File Upload Section */}
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">Test File Upload</h2>
+              <input
+                type="file"
+                onChange={handleFileUpload}
+                className="mb-4"
+                accept="image/*"
+              />
+
+              {uploadedFile && (
+                <div className="mt-4">
+                  <p className="text-green-600">{uploadedFile.message}</p>
+                  <img
+                    src={uploadedFile.fileUrl}
+                    alt="Uploaded file"
+                    className="mt-2 max-w-full h-auto rounded"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Existing Files Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">Uploaded Files</h2>
+              <div className="grid grid-cols-2 gap-4">
+                {files.map((fileUrl, index) => (
+                  <img
+                    key={index}
+                    src={fileUrl}
+                    alt={`Uploaded file ${index + 1}`}
+                    className="w-full h-auto rounded"
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

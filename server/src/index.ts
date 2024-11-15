@@ -20,6 +20,8 @@
 import express from 'express';
 import { Response, Request } from 'express';
 import { upload } from './config/upload';
+import { checkJwt } from './middleware/authMiddleware'
+import { auth0ManagementService } from './services/auth0Management';
 import path from 'path';
 import { promises as fs } from 'fs';  // Using promises version for better async handling
 import fs_sync from 'fs';  // We still need sync version for multer setup
@@ -34,11 +36,28 @@ const app = express();
  * @route GET /api/health
  * @returns {Object} JSON object containing status message and timestamp
  */
-app.get('/api/health', (req: Request, res: Response) => {
-  res.json({
-    message: 'Backend is operational!',
-    timestamp: new Date().toISOString()
-  });
+app.get('/api/health', checkJwt, async (req, res) => {
+  try {
+    const userId = req.auth?.payload.sub;
+    if (!userId) {
+      return res.status(401).json({ error: 'No user ID found in token' });
+    }
+
+    const roles = await auth0ManagementService.getUserRoles(userId);
+    
+    res.json({
+      message: 'Backend is operational!',
+      timestamp: new Date().toISOString(),
+      roles,
+      userId
+    });
+  } catch (error) {
+    console.error('Error fetching roles:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch roles',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
 });
 
 /**
