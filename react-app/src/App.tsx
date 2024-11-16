@@ -41,11 +41,19 @@ interface FilesResponse {
 }
 
 /**
+ * Props type for React.FC<Props>
+ * AppContent doesn't require children
+ */
+interface Props {
+  children?: React.ReactNode;
+}
+
+/**
  * Root application component that manages file uploads and backend communication
  * 
  * @returns {JSX.Element} The rendered application
  */
-function App() {
+const AppContent: React.FC<Props> = ({ children }) => {
   const { isAuthenticated, getAccessTokenSilently, loginWithRedirect, logout, user } = useAuth0();
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [uploadedFile, setUploadedFile] = useState<FileResponse | null>(null);
@@ -271,6 +279,12 @@ function App() {
       </div>
     </div>
   );
+}
+
+function App() {
+  return (
+    <AppContent />
+  )
 }
 
 export default App;
