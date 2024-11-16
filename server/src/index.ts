@@ -11,7 +11,7 @@
  * 
  * Route Modules:
  * - /api/admin: Administrative endpoints (health check, etc.)
- * - /api/test: File management endpoints (upload, list)
+ * - /api/disk: File management endpoints (upload, list)
  * 
  * @module src/index
  */
