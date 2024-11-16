@@ -17,7 +17,6 @@
  */
 
 import express from 'express';
-import path from 'path';
 import adminRoutes from './routes/admin.routes';
 import diskRoutes from './routes/disk.routes';
 import { getBaseUploadDir } from './utils/uploadUtils';
