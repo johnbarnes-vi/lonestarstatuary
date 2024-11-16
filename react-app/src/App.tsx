@@ -16,7 +16,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from './contexts/UserContext';
-//import { User } from '@lonestar/shared'; // Importing types from shared resource
+import { User } from '@lonestar/shared'; // Importing types from shared resource
 
 /**
  * Represents the response from the health check endpoint
