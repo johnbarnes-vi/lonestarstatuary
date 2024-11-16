@@ -11,8 +11,7 @@ import { promises as fs } from 'fs';
 import fs_sync from 'fs';
 import path from 'path';
 import { createUploadMiddleware } from '../config/upload';
-
-type UploadDirectory = 'test' | 'products' | 'commissions';
+import { getBaseUploadDir, UploadDirectory } from '../utils/uploadUtils';
 
 class DiskController {
   /**
@@ -66,14 +65,35 @@ class DiskController {
    */
   private async getFilesFromDirectory(directory: UploadDirectory, res: Response) {
     try {
-      const baseDir = process.env.UPLOAD_DIR || '/app/uploads';
+      const baseDir = getBaseUploadDir();
       const dirPath = path.join(baseDir, directory);
+      
+      // Ensure directory exists
+      if (!fs_sync.existsSync(dirPath)) {
+        return res.json({ files: [] });
+      }
+
       const files = await fs.readdir(dirPath);
-      const fileUrls = files.map(file => `/uploads/${directory}/${file}`);
-      res.json({ files: fileUrls });
+      
+      // Filter out .gitignore and any other hidden files
+      const visibleFiles = files.filter(file => !file.startsWith('.'));
+      
+      // Format URLs according to environment
+      const fileUrls = visibleFiles.map(file => `/uploads/${directory}/${file}`);
+      
+      res.json({ 
+        files: fileUrls,
+        directory: {
+          path: dirPath,
+          fileCount: visibleFiles.length
+        }
+      });
     } catch (error) {
       console.error(`Error reading ${directory} directory:`, error);
-      res.status(500).json({ error: `Failed to read ${directory} directory` });
+      res.status(500).json({ 
+        error: `Failed to read ${directory} directory`,
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   }
 

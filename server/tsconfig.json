@@ -126,7 +126,7 @@
     // - Usually plain JavaScript files
     // - Often use different environment (Node.js vs browser)
     // - May have different TypeScript requirements than your app
-    "scripts",
+    //"src/scripts",
 
     // Test-related directories and files
     // - Often have different TypeScript configuration needs

@@ -6,7 +6,8 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "watch-ts": "tsc -w"
+    "watch-ts": "tsc -w",
+    "setup": "ts-node src/scripts/setup-dev.ts"
   },
   "dependencies": {
     "@types/multer": "^1.4.12",

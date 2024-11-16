@@ -17,10 +17,27 @@
  */
 
 import express from 'express';
+import path from 'path';
 import adminRoutes from './routes/admin.routes';
 import diskRoutes from './routes/disk.routes';
+import { getBaseUploadDir } from './utils/uploadUtils';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
+
+// In development, serve uploaded files directly
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/uploads', express.static(getBaseUploadDir(), {
+    // Set Cache-Control header
+    maxAge: '1d',
+    // Add security headers
+    setHeaders: (res, path) => {
+      res.set('X-Content-Type-Options', 'nosniff');
+      res.set('X-Frame-Options', 'DENY');
+    }
+  }));
+}
 
 // Routes
 app.use('/api/admin', adminRoutes);
@@ -29,5 +46,8 @@ app.use('/api/disk', diskRoutes);
 // Server initialization
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
+  const uploadDir = getBaseUploadDir();
   console.log(`Server running on port ${port}`);
+  console.log(`Upload directory: ${uploadDir}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
 });

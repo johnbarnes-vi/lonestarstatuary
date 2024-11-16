@@ -6,9 +6,6 @@
  * configures multer storage for multiple upload directories, with type-safe 
  * configuration and built-in security features.
  * 
- * Environment Variables:
- * - UPLOAD_DIR: Base directory for file uploads (default: '/app/uploads')
- * 
  * Security Notes:
  * - File size limits are enforced at the nginx level
  * - Filenames are sanitized to prevent directory traversal
@@ -19,15 +16,9 @@
  */
 
 import multer from 'multer';
-import path from 'path';
 import { promises as fs } from 'fs';  // Using promises version
 import fs_sync from 'fs';  // We still need sync version for multer setup
-
-/**
- * Valid upload directory types
- * Constrains upload destinations to specific subdirectories
- */
-type UploadDirectory = 'test' | 'products' | 'commissions';
+import { getUploadPath, getAllUploadPaths, UploadDirectory } from '../utils/uploadUtils';
 
 /**
  * Creates required upload directories if they don't exist.
@@ -43,17 +34,12 @@ type UploadDirectory = 'test' | 'products' | 'commissions';
  * @returns {Promise<void>}
  */
 const createUploadDirs = async () => {
-    const baseDir = process.env.UPLOAD_DIR || '/app/uploads';
-    const dirs = [
-        path.join(baseDir, 'test'),
-        path.join(baseDir, 'products'),
-        path.join(baseDir, 'commissions')
-    ];
-
+    const dirs = getAllUploadPaths();
+    
     for (const dir of dirs) {
-        if (!fs_sync.existsSync(dir)) {
-            await fs.mkdir(dir, { recursive: true });
-        }
+      if (!fs_sync.existsSync(dir)) {
+        await fs.mkdir(dir, { recursive: true });
+      }
     }
 };
 
@@ -96,8 +82,7 @@ const createStorage = (uploadDir: UploadDirectory) => {
          * @param {function} cb - Callback to set the destination
          */
         destination: (req, file, cb) => {
-            const baseDir = process.env.UPLOAD_DIR || '/app/uploads';
-            const finalPath = path.join(baseDir, uploadDir);
+            const finalPath = getUploadPath(uploadDir);
             cb(null, finalPath);
         },
 
