@@ -15,7 +15,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useUserContext } from './contexts/UserContext';
 
 /**
  * Represents the response from the health check endpoint
@@ -41,20 +41,12 @@ interface FilesResponse {
 }
 
 /**
- * Props type for React.FC<Props>
- * AppContent doesn't require children
- */
-interface Props {
-  children?: React.ReactNode;
-}
-
-/**
  * Root application component that manages file uploads and backend communication
  * 
  * @returns {JSX.Element} The rendered application
  */
-const AppContent: React.FC<Props> = ({ children }) => {
-  const { isAuthenticated, getAccessTokenSilently, loginWithRedirect, logout, user } = useAuth0();
+function App() {
+  const { isAuthenticated, user, login, logout, fetchWithAuth } = useUserContext();
   const [response, setResponse] = useState<ApiResponse | null>(null);
   const [uploadedFile, setUploadedFile] = useState<FileResponse | null>(null);
   const [files, setFiles] = useState<string[]>([]);
@@ -67,26 +59,6 @@ const AppContent: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     fetchTestFiles();
   }, []);
-
-
-  // Helper function for authenticated API calls
-  type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
-  const fetchWithAuth = async (
-    url: string, 
-    options: Omit<RequestInit, 'method'> & { method?: HttpMethod } = { method: 'GET' }
-  ) => {
-    const token = await getAccessTokenSilently();
-    return fetch(url, {
-      method: options.method || 'GET', // Explicitly set default
-      ...options,
-      headers: {
-        'Content-Type': 'application/json', // Set default content type
-        ...options.headers,
-        Authorization: `Bearer ${token}`
-      }
-    });
-  };
 
   /**
      * Performs a health check request to the backend
@@ -177,14 +149,14 @@ const AppContent: React.FC<Props> = ({ children }) => {
           </h1>
           {isAuthenticated ? (
             <button
-              onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+              onClick={() => logout()}
               className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
             >
               Log Out
             </button>
           ) : (
             <button
-              onClick={() => loginWithRedirect()}
+              onClick={() => login()}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
               Log In
@@ -279,12 +251,6 @@ const AppContent: React.FC<Props> = ({ children }) => {
       </div>
     </div>
   );
-}
-
-function App() {
-  return (
-    <AppContent />
-  )
 }
 
 export default App;

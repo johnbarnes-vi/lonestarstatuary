@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Auth0Provider } from '@auth0/auth0-react';
+import { UserProvider } from './contexts/UserContext';
 import App from './App';
 import './index.css';
 
@@ -20,8 +21,10 @@ root.render(
       scope: "openid profile email read:current_user update:current_user_metadata read:roles"
     }}
   >
-    <Router>
-      <App />
-    </Router>
+    <UserProvider>
+      <Router>
+        <App />
+      </Router>
+    </UserProvider>
   </Auth0Provider>
 );
