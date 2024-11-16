@@ -11,6 +11,7 @@
  * 
  * Route Modules:
  * - /api/admin: Administrative endpoints (health check, etc.)
+ * - /api/users: User Management endpoints (populate user-roles, etc.)
  * - /api/disk: File management endpoints (upload, list)
  * 
  * @module src/index
@@ -18,6 +19,7 @@
 
 import express from 'express';
 import adminRoutes from './routes/admin.routes';
+import userRoutes from './routes/user.routes';
 import diskRoutes from './routes/disk.routes';
 import { getBaseUploadDir } from './utils/uploadUtils';
 import dotenv from 'dotenv';
@@ -40,6 +42,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Routes
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/disk', diskRoutes);
 
 // Server initialization

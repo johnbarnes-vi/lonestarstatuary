@@ -62,11 +62,18 @@ function App() {
 
 
   // Helper function for authenticated API calls
-  const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+  type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+  const fetchWithAuth = async (
+    url: string, 
+    options: Omit<RequestInit, 'method'> & { method?: HttpMethod } = { method: 'GET' }
+  ) => {
     const token = await getAccessTokenSilently();
     return fetch(url, {
+      method: options.method || 'GET', // Explicitly set default
       ...options,
       headers: {
+        'Content-Type': 'application/json', // Set default content type
         ...options.headers,
         Authorization: `Bearer ${token}`
       }
@@ -86,7 +93,7 @@ function App() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchWithAuth('/api/admin/health');
+      const res = await fetchWithAuth('/api/admin/health', { method: 'GET' });
       if (!res.ok) throw new Error('API request failed');
       const data: ApiResponse = await res.json();
       setResponse(data);
@@ -144,7 +151,7 @@ function App() {
    */
   const fetchTestFiles = async () => {
     try {
-      const res = await fetch('/api/disk/test/files');
+      const res = await fetch('/api/disk/test/files', { method: 'GET' });
       if (!res.ok) throw new Error('Failed to fetch files');
       const data: FilesResponse = await res.json();
       setFiles(data.files);
