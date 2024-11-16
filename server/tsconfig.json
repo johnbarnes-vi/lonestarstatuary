@@ -26,7 +26,7 @@
 
     /* Modules */
     "module": "commonjs",                                /* Specify what module code is generated. */
-    "rootDir": "./src",                                  /* Specify the root folder within your source files. */
+    "rootDir": "../",                                  /* Specify the root folder within your source files. */
     // "moduleResolution": "node10",                     /* Specify how TypeScript looks up a file from a given module specifier. */
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
@@ -105,7 +105,10 @@
 
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
-    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
+    "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
+    "paths": {
+      "@lonestar/shared": ["../shared/src"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": [
@@ -114,7 +117,6 @@
     // - Dependencies should be typed via their @types packages
     // - Can cause conflicts with packages' internal TypeScript settings
     "node_modules",
-
     // Output directories for compiled code
     // - No need to type-check already compiled code
     // - Would create circular dependencies in the build process
