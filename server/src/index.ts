@@ -22,7 +22,7 @@ import adminRoutes from './routes/admin.routes';
 import userRoutes from './routes/user.routes';
 import diskRoutes from './routes/disk.routes';
 import { getBaseUploadDir } from './utils/uploadUtils';
-import { User } from '@lonestar/shared'; // Importing types from shared resource
+//import { User } from '@lonestar/shared'; // Importing types from shared resource
 
 import dotenv from 'dotenv';
 dotenv.config();
