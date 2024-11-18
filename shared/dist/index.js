@@ -20,4 +20,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Bundles all shared resources for both frontend and backend
  */
 __exportStar(require("./types/user.types"), exports);
+__exportStar(require("./types/product.types"), exports);
 // Add other shared types as needed
