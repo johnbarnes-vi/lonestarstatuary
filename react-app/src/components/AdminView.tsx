@@ -1,4 +1,4 @@
-// src/components/AdminPanel.tsx
+// src/components/AdminView.tsx
 import React, { useState, useEffect } from 'react';
 import { useUserContext } from '../contexts/UserContext';
 
@@ -31,7 +31,7 @@ interface FilesResponse {
  * @component
  * @returns {JSX.Element} Rendered admin panel
  */
-const AdminPanel: React.FC = () => {
+const AdminView: React.FC = () => {
     const { fetchWithAuth, user } = useUserContext();
     const [response, setResponse] = useState<ApiResponse | null>(null);
     const [uploadedFile, setUploadedFile] = useState<FileResponse | null>(null);
@@ -199,4 +199,4 @@ const AdminPanel: React.FC = () => {
     );
 };
 
-export default AdminPanel;
+export default AdminView;

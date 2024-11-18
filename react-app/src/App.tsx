@@ -17,7 +17,8 @@
 import React from 'react';
 import { useUserContext } from './contexts/UserContext';
 import AuthButton from './components/AuthButton';
-import AdminPanel from './components/AdminPanel';
+import AdminView from './components/AdminView';
+import CustomerView from './components/CustomerView';
 //import { User } from '@lonestar/shared'; // Importing types from shared resource
 
 /**
@@ -40,25 +41,8 @@ function App() {
           <AuthButton />
         </div>
 
-        {/* Customer View */}
-        {!isAuthenticated && (
-          <div className="text-center py-8">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">
-              Welcome to Lone Star Statuary
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Discover our collection of handcrafted classical sculptures and custom statuary commissions.
-            </p>
-            <p className="text-gray-500 text-sm">
-              Please log in to explore our full catalog and services.
-            </p>
-          </div>
-        )}
-
-        {/* Admin View */}
-        {isAuthenticated && (
-          <AdminPanel />
-        )}
+        {/* Main Content */}
+        {isAuthenticated ? <AdminView /> : <CustomerView />}
       </div>
     </div>
   );
