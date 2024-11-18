@@ -1,6 +1,6 @@
 // src/hooks/admin/useTestFiles.ts
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 interface FileResponse {
     message: string;
@@ -16,7 +16,18 @@ export const useTestFiles = () => {
     const [files, setFiles] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const uploadFile = async (file: File) => {
+    const fetchFiles = useCallback(async () => {
+        try {
+            const res = await fetch('/api/disk/test/files', { method: 'GET' });
+            if (!res.ok) throw new Error('Failed to fetch files');
+            const data: FilesResponse = await res.json();
+            setFiles(data.files);
+        } catch (err) {
+            console.error('Error fetching files:', err);
+        }
+    }, []); // No dependencies as it doesn't use any external values
+
+    const uploadFile = useCallback(async (file: File) => {
         setLoading(true);
         const formData = new FormData();
         formData.append('file', file);
@@ -35,18 +46,7 @@ export const useTestFiles = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const fetchFiles = async () => {
-        try {
-            const res = await fetch('/api/disk/test/files', { method: 'GET' });
-            if (!res.ok) throw new Error('Failed to fetch files');
-            const data: FilesResponse = await res.json();
-            setFiles(data.files);
-        } catch (err) {
-            console.error('Error fetching files:', err);
-        }
-    };
+    }, [fetchFiles]); // Include fetchFiles in dependencies
 
     return {
         uploadedFile,

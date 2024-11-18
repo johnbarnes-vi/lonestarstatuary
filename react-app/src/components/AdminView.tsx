@@ -1,5 +1,5 @@
 // src/components/AdminView.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useUserContext } from '../contexts/UserContext';
 import { HealthCheck } from './admin/health/HealthCheck';
 import { TestFileManager } from './admin/test-files/TestFileManager';
@@ -52,15 +52,8 @@ const AdminView: React.FC = () => {
         edition: { isLimited: false }
     });
 
-    /**
-     * Fetches existing products on component mount
-     */
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
     // Product management functions
-    const fetchProducts = async () => {
+    const fetchProducts = useCallback(async () => {
         setLoading(true);
         try {
             const response = await fetchWithAuth('/api/products');
@@ -72,7 +65,14 @@ const AdminView: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [fetchWithAuth]);
+
+    /**
+     * Fetches existing products on component mount
+     */
+    useEffect(() => {
+        fetchProducts();
+    }, [fetchProducts]); 
 
     const handleCreateProduct = async (e: React.FormEvent) => {
         e.preventDefault();
