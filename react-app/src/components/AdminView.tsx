@@ -57,7 +57,7 @@ const AdminView: React.FC = () => {
      */
     useEffect(() => {
         fetchProducts();
-    });
+    }, []);
 
     // Product management functions
     const fetchProducts = async () => {
