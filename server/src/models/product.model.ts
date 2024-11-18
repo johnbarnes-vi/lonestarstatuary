@@ -1,22 +1,22 @@
 // src/models/product.model.ts
 
 import mongoose, { Schema, Document } from 'mongoose';
-import { 
-  Product, 
-  ProductCategory, 
-  ProductStockStatus, 
+import {
+  Product,
+  ProductCategory,
+  ProductStockStatus,
   ProductDimensions,
   ProductWeight,
   ProductMaterial,
   EditionInfo,
-  ProductImages 
+  ProductImages
 } from '@lonestar/shared';
 
 /**
  * Mongoose document interface extending Product type
  * We omit 'id' from Product and let Mongoose handle it
  */
-export interface ProductDocument extends Omit<Product, 'id'>, Document {}
+export interface ProductDocument extends Omit<Product, 'id'>, Document { }
 
 /**
  * Product dimensions schema
@@ -68,76 +68,94 @@ const imagesSchema = new Schema<ProductImages>({
  * Main product schema
  */
 const productSchema = new Schema<ProductDocument>({
-  sku: { 
-    type: String, 
-    required: true, 
+  sku: {
+    type: String,
+    required: true,
     unique: true,
     uppercase: true,
     trim: true
   },
-  name: { 
-    type: String, 
+  name: {
+    type: String,
     required: true,
     trim: true,
     index: true
   },
-  description: { 
-    type: String, 
-    required: true 
+  description: {
+    type: String,
+    required: true
   },
-  category: { 
-    type: String, 
+  category: {
+    type: String,
     enum: Object.values(ProductCategory),
     required: true,
     index: true
   },
-  price: { 
-    type: Number, 
+  price: {
+    type: Number,
     required: true,
     min: 0,
     index: true
   },
-  stockStatus: { 
-    type: String, 
+  stockStatus: {
+    type: String,
     enum: Object.values(ProductStockStatus),
     required: true,
     index: true
   },
-  dimensions: { 
-    type: dimensionsSchema, 
-    required: true 
+  dimensions: {
+    type: dimensionsSchema,
+    required: true
   },
-  weight: { 
-    type: weightSchema, 
-    required: true 
+  weight: {
+    type: weightSchema,
+    required: true
   },
-  material: { 
-    type: materialSchema, 
-    required: true 
+  material: {
+    type: materialSchema,
+    required: true
   },
-  edition: { 
-    type: editionSchema, 
-    required: true 
+  edition: {
+    type: editionSchema,
+    required: true
   },
-  images: { 
-    type: imagesSchema, 
-    required: true 
+  images: {
+    type: imagesSchema,
+    required: true
   },
-  tags: { 
+  tags: {
     type: [String],
     index: true
   }
 }, {
   timestamps: true,  // Adds createdAt and updatedAt
-  strict: true      // Only specified schema fields will be saved in the database
+  strict: true,      // Only specified schema fields will be saved in the database
+  toJSON: {
+    transform: function (doc, ret) {
+      ret.id = ret._id.toString();
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    },
+    virtuals: true
+  },
+  toObject: {
+    transform: function (doc, ret) {
+      ret.id = ret._id.toString();
+      delete ret._id;
+      delete ret.__v;
+      return ret;
+    },
+    virtuals: true
+  }
 });
 
 // Add compound indexes for common queries
 productSchema.index({ category: 1, stockStatus: 1 });
 productSchema.index({ price: 1, category: 1 });
-productSchema.index({ 
-  name: 'text', 
-  description: 'text', 
+productSchema.index({
+  name: 'text',
+  description: 'text',
   'material.primary': 'text',
   tags: 'text'
 }, {

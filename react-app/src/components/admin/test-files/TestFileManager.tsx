@@ -8,7 +8,7 @@ export const TestFileManager: React.FC = () => {
 
     useEffect(() => {
         fetchFiles();
-    });
+    }, []);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
