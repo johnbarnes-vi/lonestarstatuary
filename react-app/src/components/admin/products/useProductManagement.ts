@@ -7,7 +7,9 @@ import {
   CreateProductDTO,
   UpdateProductDTO,
   ProductCategory,
-  ProductStockStatus
+  ProductStockStatus,
+  ProductDimensions,
+  ProductWeight
 } from '@lonestar/shared';
 
 /**
@@ -59,6 +61,38 @@ export const useProductManagement = () => {
       setLoading(false);
     }
   }, [fetchWithAuth]);
+
+  const handleDimensionChange = useCallback((field: keyof ProductDimensions, value: string) => {
+    setProductFormData(prev => ({
+      ...prev,
+      dimensions: {
+        ...prev.dimensions,
+        [field]: field === 'unit' ? value : parseFloat(value) || 0
+      }
+    }));
+  }, []);
+
+  const handleWeightChange = useCallback((field: keyof ProductWeight, value: string) => {
+    setProductFormData(prev => ({
+      ...prev,
+      weight: {
+        ...prev.weight,
+        [field]: field === 'unit' ? value : parseFloat(value) || 0
+      }
+    }));
+  }, []);
+
+  const handleEditionChange = useCallback((field: string, value: any) => {
+    setProductFormData(prev => ({
+      ...prev,
+      edition: {
+        ...prev.edition,
+        [field]: field === 'isLimited' ? value :
+          field === 'moldCreationDate' ? new Date(value) :
+            parseInt(value) || 0
+      }
+    }));
+  }, []);
 
   const uploadProductImages = async () => {
     const imageUrls = {
@@ -219,6 +253,9 @@ export const useProductManagement = () => {
     handleCreateProduct,
     handleUpdateProduct,
     handleDeleteProduct,
+    handleDimensionChange,
+    handleWeightChange,
+    handleEditionChange,
     resetForm,
     fetchProducts
   };
