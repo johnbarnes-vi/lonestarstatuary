@@ -1,5 +1,6 @@
 // src/components/AdminView.tsx
 import React from 'react';
+import { CollapsibleSection } from './common/CollapsibleSection';
 import { useUserContext } from '../contexts/UserContext';
 import { HealthCheck } from './admin/health/HealthCheck';
 import { TestFileManager } from './admin/test-files/TestFileManager';
@@ -22,15 +23,19 @@ const AdminView: React.FC = () => {
                 </p>
             </div>
 
-            {/* Health Check Section */}
-            <HealthCheck />
+            <div className="space-y-4">
+                <CollapsibleSection title="Health Check" maxHeight='FULL_HEIGHT'>
+                    <HealthCheck />
+                </CollapsibleSection>
 
-            {/* Test-file Section */}
-            <TestFileManager />
+                <CollapsibleSection title="Test File Manager">
+                    <TestFileManager />
+                </CollapsibleSection>
 
-
-            {/* Product Management Section */}
-            <ProductManager />
+                <CollapsibleSection title="Product Management" maxHeight='FULL_HEIGHT'>
+                    <ProductManager />
+                </CollapsibleSection>
+            </div>
         </>
     );
 };
