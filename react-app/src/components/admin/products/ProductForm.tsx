@@ -1,6 +1,6 @@
 // src/components/admin/products/ProductForm.tsx
 
-import React from 'react';
+import React, { useRef } from 'react';
 import {
     Product,
     ProductCategory,
@@ -35,8 +35,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     handleEditionChange,
     resetForm
 }) => {
+    const formRef = useRef<HTMLFormElement>(null);
+
+    const handleReset = () => {
+        formRef.current?.reset(); // This will clear all form inputs including file inputs
+        resetForm(); // Then reset our state
+    };
+
     return (
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="mt-8 space-y-6">
             <h3 className="text-lg font-semibold">
                 {isEditing
                     ? `Edit Product: ${selectedProduct?.name}`
@@ -350,20 +357,35 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             {/* Images */}
             <div className="space-y-4 border-t pt-4">
                 <h4 className="font-medium">Images</h4>
-                <div className="space-y-4">
+                <div className="space-y-6">
+                    {/* Thumbnail */}
                     <div>
                         <label className="block text-sm text-gray-700">Thumbnail</label>
                         <input
                             type="file"
-                            onChange={e => setProductFormData({
-                                ...productFormData,
-                                thumbnailFile: e.target.files?.[0]
-                            })}
+                            onChange={e => {
+                                const file = e.target.files?.[0];
+                                setProductFormData({
+                                    ...productFormData,
+                                    thumbnailFile: file
+                                });
+                            }}
                             accept="image/*"
                             className="mt-1"
                         />
+                        {/* Thumbnail Preview */}
+                        {productFormData.thumbnailFile && (
+                            <div className="mt-2">
+                                <img
+                                    src={URL.createObjectURL(productFormData.thumbnailFile)}
+                                    alt="Thumbnail preview"
+                                    className="w-24 h-24 object-cover rounded border"
+                                />
+                            </div>
+                        )}
                     </div>
 
+                    {/* Main Images */}
                     <div>
                         <label className="block text-sm text-gray-700">Main Images</label>
                         <input
@@ -376,8 +398,22 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                             accept="image/*"
                             className="mt-1"
                         />
+                        {/* Main Images Preview */}
+                        {productFormData.mainImageFiles && productFormData.mainImageFiles.length > 0 && (
+                            <div className="mt-2 grid grid-cols-4 gap-2">
+                                {Array.from(productFormData.mainImageFiles).map((file, index) => (
+                                    <img
+                                        key={index}
+                                        src={URL.createObjectURL(file)}
+                                        alt={`Product view ${index + 1}`}
+                                        className=" object-cover rounded border"
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
 
+                    {/* 360° View Images */}
                     <div>
                         <label className="block text-sm text-gray-700">360° View Images</label>
                         <input
@@ -390,6 +426,19 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                             accept="image/*"
                             className="mt-1"
                         />
+                        {/* 360° Images Preview */}
+                        {productFormData.threeSixtyFiles && productFormData.threeSixtyFiles.length > 0 && (
+                            <div className="mt-2 grid grid-cols-4 gap-2">
+                                {Array.from(productFormData.threeSixtyFiles).map((file, index) => (
+                                    <img
+                                        key={index}
+                                        src={URL.createObjectURL(file)}
+                                        alt={`360° view ${index + 1}`}
+                                        className="w-24 h-24 object-cover rounded border"
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -398,7 +447,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             <div className="flex justify-end space-x-2 border-t pt-4">
                 <button
                     type="button"
-                    onClick={resetForm}
+                    onClick={handleReset}
                     className="px-4 py-2 border rounded hover:bg-gray-100"
                 >
                     Cancel
