@@ -49,11 +49,49 @@ const materialSchema = new Schema<ProductMaterial>({
  * Edition information schema
  */
 const editionSchema = new Schema<EditionInfo>({
-  isLimited: { type: Boolean, required: true },
-  totalCount: Number,
-  currentNumber: Number,
-  moldCreationDate: Date
+  isLimited: { 
+    type: Boolean, 
+    required: true 
+  },
+  moldCreationDate: Date,
+  runSize: { 
+    type: Number, 
+    required: true,
+    min: 1,
+    validate: {
+      validator: Number.isInteger,
+      message: 'Run size must be a whole number'
+    }
+  },
+  availableQuantity: { 
+    type: Number, 
+    required: true,
+    min: 0,
+    validate: {
+      validator: Number.isInteger,
+      message: 'Available quantity must be a whole number'
+    }
+  },
+  soldCount: { 
+    type: Number, 
+    required: true,
+    min: 0,
+    default: 0,
+    validate: {
+      validator: Number.isInteger,
+      message: 'Sold count must be a whole number'
+    }
+  }
 }, { _id: false });
+
+// Add validators to ensure data consistency
+editionSchema.pre('validate', function(next) {
+  // Ensure available + sold = runSize
+  if (this.availableQuantity + this.soldCount !== this.runSize) {
+    next(new Error('Available quantity plus sold count must equal run size'));
+  }
+  next();
+});
 
 /**
  * Product images schema

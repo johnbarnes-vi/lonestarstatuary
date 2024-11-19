@@ -45,9 +45,10 @@ export interface ProductMaterial {
  */
 export interface EditionInfo {
     isLimited: boolean;
-    totalCount?: number;
-    currentNumber?: number;
     moldCreationDate?: Date;
+    runSize: number;
+    availableQuantity: number;
+    soldCount: number;
 }
 /**
  * Product images interface
@@ -86,6 +87,11 @@ export type CreateProductDTO = Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 
  * Product update DTO
  */
 export type UpdateProductDTO = Partial<CreateProductDTO>;
+export interface ProductFormData extends Omit<CreateProductDTO, 'images'> {
+    thumbnailFile?: File;
+    mainImageFiles?: FileList;
+    threeSixtyFiles?: FileList;
+}
 /**
  * Product query parameters
  */

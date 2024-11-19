@@ -9,17 +9,9 @@ import {
   ProductCategory,
   ProductStockStatus,
   ProductDimensions,
-  ProductWeight
+  ProductWeight,
+  ProductFormData
 } from '@lonestar/shared';
-
-/**
- * Product form state interface
- */
-interface ProductFormData extends Omit<CreateProductDTO, 'images'> {
-  thumbnailFile?: File;
-  mainImageFiles?: FileList;
-  threeSixtyFiles?: FileList;
-}
 
 /**
  * Hook for managing product-related state and operations
@@ -45,7 +37,12 @@ export const useProductManagement = () => {
       finish: '',
       color: ''
     },
-    edition: { isLimited: false }
+    edition: { 
+      isLimited: false,
+      runSize: 0,
+      availableQuantity: 0,
+      soldCount: 0
+    }
   });
 
   const fetchProducts = useCallback(async () => {
@@ -233,7 +230,12 @@ export const useProductManagement = () => {
       dimensions: { height: 0, width: 0, depth: 0, unit: 'INCHES' },
       weight: { value: 0, unit: 'LBS' },
       material: { primary: '' },
-      edition: { isLimited: false }
+      edition: { 
+        isLimited: false,
+        runSize: 0,
+        availableQuantity: 0,
+        soldCount: 0
+      }
     });
     setSelectedProduct(null);
     setIsEditing(false);

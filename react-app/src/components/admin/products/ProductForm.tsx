@@ -7,15 +7,8 @@ import {
     ProductStockStatus,
     ProductDimensions,
     ProductWeight,
-    CreateProductDTO
+    ProductFormData
 } from '@lonestar/shared';
-
-// Define the form data type
-interface ProductFormData extends Omit<CreateProductDTO, 'images'> {
-    thumbnailFile?: File;
-    mainImageFiles?: FileList;
-    threeSixtyFiles?: FileList;
-}
 
 interface ProductFormProps {
     loading: boolean;
@@ -236,29 +229,56 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         <label className="text-sm text-gray-700">Limited Edition</label>
                     </div>
 
-                    {productFormData.edition.isLimited && (
-                        <div className="grid grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-sm text-gray-700">Total Count</label>
-                                <input
-                                    type="number"
-                                    value={productFormData.edition.totalCount || ''}
-                                    onChange={e => handleEditionChange('totalCount', e.target.value)}
-                                    className="mt-1 p-2 border rounded w-full"
-                                    min="1"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-700">Current Number</label>
-                                <input
-                                    type="number"
-                                    value={productFormData.edition.currentNumber || ''}
-                                    onChange={e => handleEditionChange('currentNumber', e.target.value)}
-                                    className="mt-1 p-2 border rounded w-full"
-                                    min="0"
-                                />
-                            </div>
-                            <div>
+                    <div className="grid grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-sm text-gray-700">Run Size*</label>
+                            <input
+                                type="number"
+                                value={productFormData.edition.runSize}
+                                onChange={e => handleEditionChange('runSize', e.target.value)}
+                                className="mt-1 p-2 border rounded w-full"
+                                min="1"
+                                required
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Total number of pieces in this production run
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm text-gray-700">Available Quantity*</label>
+                            <input
+                                type="number"
+                                value={productFormData.edition.availableQuantity}
+                                onChange={e => handleEditionChange('availableQuantity', e.target.value)}
+                                className="mt-1 p-2 border rounded w-full"
+                                min="0"
+                                max={productFormData.edition.runSize}
+                                required
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Current inventory available for sale
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm text-gray-700">Sold Count</label>
+                            <input
+                                type="number"
+                                value={productFormData.edition.soldCount}
+                                onChange={e => handleEditionChange('soldCount', e.target.value)}
+                                className="mt-1 p-2 border rounded w-full"
+                                min="0"
+                                readOnly={isEditing}
+                                required
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                {isEditing ? 'Updated automatically when sales occur' : 'Start at 0 for new products'}
+                            </p>
+                        </div>
+
+                        {productFormData.edition.isLimited && (
+                            <div className="col-span-3">
                                 <label className="block text-sm text-gray-700">Mold Creation Date</label>
                                 <input
                                     type="date"
@@ -269,8 +289,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                                     className="mt-1 p-2 border rounded w-full"
                                 />
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
 
