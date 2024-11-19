@@ -31,8 +31,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl p-6">
-
+      <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
         {/* Top Bar */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800">
