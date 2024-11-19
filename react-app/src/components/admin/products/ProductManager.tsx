@@ -1,10 +1,10 @@
 // src/components/admin/products/ProductManager.tsx
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Product } from '@lonestar/shared';
 import { useProductManagement } from './useProductManagement';
 import { ProductList } from './ProductList';
 import { ProductForm } from './ProductForm';
+import { CollapsibleSection } from '../../common/CollapsibleSection';
 
 export const ProductManager: React.FC = () => {
     const {
@@ -28,17 +28,22 @@ export const ProductManager: React.FC = () => {
         fetchProducts
     } = useProductManagement();
 
-    // Fetch products on component mount
-    useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]);
+    // Collapse states
+    const [isListExpanded, setIsListExpanded] = useState(true);
+    const [isFormExpanded, setIsFormExpanded] = useState(false);
 
     // Handle edit button click
     const handleEdit = (product: Product) => {
         setSelectedProduct(product);
         setProductFormData(product);
         setIsEditing(true);
+        setIsFormExpanded(true); // Expand the form section
+        setIsListExpanded(false); // Optionally collapse the list section
     };
+
+    useEffect(() => {
+        fetchProducts();
+    }, [fetchProducts]);
 
     return (
         <div className="mb-8">
@@ -46,38 +51,57 @@ export const ProductManager: React.FC = () => {
                 Product Management
             </h2>
 
-            {/* Search */}
-            <div className="mb-4">
-                <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-2 border rounded"
-                />
+            <div className="space-y-4">
+                <CollapsibleSection 
+                    title="Product List"
+                    maxHeight="600px"
+                    isExpanded={isListExpanded}
+                    onToggle={() => setIsListExpanded(!isListExpanded)}
+                >
+                    {/* Search */}
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="Search products..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full p-2 border rounded"
+                        />
+                    </div>
+
+                    {/* Product List */}
+                    <ProductList
+                        products={products}
+                        searchTerm={searchTerm}
+                        onEdit={handleEdit}
+                        onDelete={handleDeleteProduct}
+                    />
+                </CollapsibleSection>
+
+                <CollapsibleSection 
+                    title={isEditing ? "Edit Product" : "Add New Product"}
+                    maxHeight="FULL_HEIGHT"
+                    isExpanded={isFormExpanded}
+                    onToggle={() => setIsFormExpanded(!isFormExpanded)}
+                >
+                    <ProductForm
+                        loading={loading}
+                        isEditing={isEditing}
+                        selectedProduct={selectedProduct}
+                        productFormData={productFormData}
+                        setProductFormData={setProductFormData}
+                        handleSubmit={isEditing ? handleUpdateProduct : handleCreateProduct}
+                        handleDimensionChange={handleDimensionChange}
+                        handleWeightChange={handleWeightChange}
+                        handleEditionChange={handleEditionChange}
+                        resetForm={() => {
+                            resetForm();
+                            setIsFormExpanded(false);
+                            setIsListExpanded(true);
+                        }}
+                    />
+                </CollapsibleSection>
             </div>
-
-            {/* Product List */}
-            <ProductList
-                products={products}
-                searchTerm={searchTerm}
-                onEdit={handleEdit}
-                onDelete={handleDeleteProduct}
-            />
-
-            {/* Product Form */}
-            <ProductForm
-                loading={loading}
-                isEditing={isEditing}
-                selectedProduct={selectedProduct}
-                productFormData={productFormData}
-                setProductFormData={setProductFormData}
-                handleSubmit={isEditing ? handleUpdateProduct : handleCreateProduct}
-                handleDimensionChange={handleDimensionChange}
-                handleWeightChange={handleWeightChange}
-                handleEditionChange={handleEditionChange}
-                resetForm={resetForm}
-            />
 
             {/* Loading Overlay */}
             {loading && (

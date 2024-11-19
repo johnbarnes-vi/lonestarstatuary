@@ -1,5 +1,4 @@
-// src/components/AdminView.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { CollapsibleSection } from './common/CollapsibleSection';
 import { useUserContext } from '../contexts/UserContext';
 import { HealthCheck } from './admin/health/HealthCheck';
@@ -14,6 +13,9 @@ import { ProductManager } from './admin/products/ProductManager'
  */
 const AdminView: React.FC = () => {
     const { user } = useUserContext();
+    const [isHealthCheckExpanded, setIsHealthCheckExpanded] = useState(true);
+    const [isFileManagerExpanded, setIsFileManagerExpanded] = useState(true);
+    const [isProductManagerExpanded, setIsProductManagerExpanded] = useState(true);
 
     return (
         <>
@@ -24,15 +26,30 @@ const AdminView: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-                <CollapsibleSection title="Health Check" maxHeight='FULL_HEIGHT'>
+                <CollapsibleSection
+                    title="Health Check"
+                    maxHeight='FULL_HEIGHT'
+                    isExpanded={isHealthCheckExpanded}
+                    onToggle={() => setIsHealthCheckExpanded(!isHealthCheckExpanded)}
+                >
                     <HealthCheck />
                 </CollapsibleSection>
 
-                <CollapsibleSection title="Test File Manager">
+                <CollapsibleSection
+                    title="Test File Manager"
+                    maxHeight="400px"
+                    isExpanded={isFileManagerExpanded}
+                    onToggle={() => setIsFileManagerExpanded(!isFileManagerExpanded)}
+                >
                     <TestFileManager />
                 </CollapsibleSection>
 
-                <CollapsibleSection title="Product Management" maxHeight='FULL_HEIGHT'>
+                <CollapsibleSection
+                    title="Product Management"
+                    maxHeight='FULL_HEIGHT'
+                    isExpanded={isProductManagerExpanded}
+                    onToggle={() => setIsProductManagerExpanded(!isProductManagerExpanded)}
+                >
                     <ProductManager />
                 </CollapsibleSection>
             </div>
