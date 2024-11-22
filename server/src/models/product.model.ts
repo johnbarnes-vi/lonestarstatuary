@@ -164,6 +164,15 @@ const productSchema = new Schema<ProductDocument>({
   tags: {
     type: [String],
     index: true
+  },
+  stripeProductId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  stripePriceId: {
+    type: String,
+    required: true
   }
 }, {
   timestamps: true,  // Adds createdAt and updatedAt
@@ -187,6 +196,9 @@ const productSchema = new Schema<ProductDocument>({
     virtuals: true
   }
 });
+
+// Add index for faster Stripe ID lookups
+productSchema.index({ stripeProductId: 1 });
 
 // Add compound indexes for common queries
 productSchema.index({ category: 1, stockStatus: 1 });

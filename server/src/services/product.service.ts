@@ -2,6 +2,7 @@
 
 import { ProductModel, ProductDocument } from '../models/product.model';
 import { CreateProductDTO, UpdateProductDTO, ProductQueryParams, Product } from '@lonestar/shared';
+import { stripeService } from './stripe.service';
 
 /**
  * Service class for handling product-related database operations
@@ -13,9 +14,26 @@ class ProductService {
    * @returns Created product
    */
   async createProduct(productData: CreateProductDTO): Promise<ProductDocument> {
-    const product = new ProductModel(productData);
-    await product.save();
-    return product;
+    try {
+      // First create the product in Stripe
+      const stripeProduct = await stripeService.createProduct(productData);
+      
+      // Create the full product data including Stripe fields
+      const productWithStripe = {
+        ...productData,
+        stripeProductId: stripeProduct.id,
+        stripePriceId: stripeProduct.default_price as string
+      };
+
+      // Create product in our database
+      const product = new ProductModel(productWithStripe);
+      await product.save();
+
+      return product;
+    } catch (error) {
+      console.error('Error creating product:', error);
+      throw error;
+    }
   }
 
   /**
@@ -63,26 +81,42 @@ class ProductService {
   }
 
   /**
-   * Get a single product by ID
-   * @param id Product ID
-   * @returns Product document or null if not found
-   */
-  async getProductById(id: string): Promise<ProductDocument | null> {
-    return ProductModel.findById(id);
-  }
-
-  /**
    * Update a product
    * @param id Product ID
    * @param updateData Product update data
    * @returns Updated product or null if not found
    */
   async updateProduct(id: string, updateData: UpdateProductDTO): Promise<ProductDocument | null> {
-    return ProductModel.findByIdAndUpdate(
-      id,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    );
+    try {
+      // First get the existing product to get the SKU
+      const existingProduct = await ProductModel.findById(id);
+      if (!existingProduct) return null;
+
+      // Update the product in Stripe
+      const stripeProduct = await stripeService.updateProduct(
+        existingProduct.sku,
+        updateData
+      );
+
+      // Update Stripe-specific fields if price was updated
+      const finalUpdateData = {
+        ...updateData
+      };
+
+      if (updateData.price) {
+        finalUpdateData.stripePriceId = stripeProduct.default_price as string;
+      }
+
+      // Update product in our database
+      return ProductModel.findByIdAndUpdate(
+        id,
+        { $set: finalUpdateData },
+        { new: true, runValidators: true }
+      );
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
   }
 
   /**
@@ -91,16 +125,29 @@ class ProductService {
    * @returns Success status
    */
   async deleteProduct(id: string): Promise<boolean> {
-    const result = await ProductModel.findByIdAndUpdate(
-      id,
-      { 
-        $set: { 
-          deletedAt: new Date(),
-          stockStatus: 'DISCONTINUED'
-        } 
-      }
-    );
-    return !!result;
+    try {
+      const product = await ProductModel.findById(id);
+      if (!product) return false;
+
+      // Archive the product in Stripe
+      await stripeService.archiveProduct(product.sku);
+
+      // Soft delete in our database
+      const result = await ProductModel.findByIdAndUpdate(
+        id,
+        { 
+          $set: { 
+            deletedAt: new Date(),
+            stockStatus: 'DISCONTINUED'
+          } 
+        }
+      );
+      
+      return !!result;
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
   }
 
   /**

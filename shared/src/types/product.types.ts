@@ -82,6 +82,8 @@ interface ProductBase {
   material: ProductMaterial;
   edition: EditionInfo;
   tags?: string[];
+  stripeProductId?: string;
+  stripePriceId?: string;
 }
 
 /**
@@ -90,6 +92,8 @@ interface ProductBase {
 export interface Product extends ProductBase {
   id: string;
   images: ProductImages;
+  stripeProductId: string;
+  stripePriceId: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date; // For soft deletes

@@ -8,7 +8,6 @@ const router = express.Router();
 
 // Public routes
 router.get('/', productController.getProducts);
-router.get('/:id', productController.getProductById);
 
 // Protected routes (require authentication)
 router.post('/', checkJwt, productController.createProduct);

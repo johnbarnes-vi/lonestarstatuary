@@ -90,14 +90,22 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   ): Promise<Response> => {
     try {
       const token = await getAccessTokenSilently();
+      
+      // Set up default headers
+      const headers: HeadersInit = {
+        Authorization: `Bearer ${token}`,
+        ...options.headers,
+      };
+
+      // Only set Content-Type to application/json if we're not sending FormData
+      if (!(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+      }
+
       return fetch(url, {
         method: options.method || 'GET',
         ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          ...options.headers,
-        },
+        headers,
       });
     } catch (error) {
       console.error('Error in fetchWithAuth:', error);

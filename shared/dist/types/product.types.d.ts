@@ -73,6 +73,8 @@ interface ProductBase {
     material: ProductMaterial;
     edition: EditionInfo;
     tags?: string[];
+    stripeProductId?: string;
+    stripePriceId?: string;
 }
 /**
  * Complete product interface including metadata
@@ -80,6 +82,8 @@ interface ProductBase {
 export interface Product extends ProductBase {
     id: string;
     images: ProductImages;
+    stripeProductId: string;
+    stripePriceId: string;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;

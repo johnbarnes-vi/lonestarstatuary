@@ -43,26 +43,6 @@ export const productController = {
   },
 
   /**
-   * Get a single product by ID
-   * @route GET /api/products/:id
-   */
-  async getProductById(req: Request<{ id: string }>, res: Response) {
-    try {
-      const product = await productService.getProductById(req.params.id);
-      if (!product) {
-        return res.status(404).json({ error: 'Product not found' });
-      }
-      res.json(product);
-    } catch (error) {
-      console.error('Error fetching product:', error);
-      res.status(500).json({ 
-        error: 'Failed to fetch product',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  },
-
-  /**
    * Update a product
    * @route PATCH /api/products/:id
    */
