@@ -48,7 +48,7 @@ export const useProductManagement = () => {
   const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetchWithAuth('/api/products');
+      const response = await fetch('/api/products');
       if (!response.ok) throw new Error('Failed to fetch products');
       const data = await response.json();
       setProducts(data);
@@ -57,7 +57,7 @@ export const useProductManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [fetchWithAuth]);
+  }, []);
 
   const handleDimensionChange = useCallback((field: keyof ProductDimensions, value: string) => {
     setProductFormData(prev => ({
@@ -101,7 +101,7 @@ export const useProductManagement = () => {
     const uploadFile = async (file: File) => {
       const formData = new FormData();
       formData.append('file', file);
-      const response = await fetch('/api/disk/products/files', {
+      const response = await fetchWithAuth('/api/disk/products/files', {
         method: 'POST',
         body: formData
       });
