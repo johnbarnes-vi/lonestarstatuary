@@ -59,10 +59,9 @@ export interface ProductImages {
     threeSixty?: string[];
 }
 /**
- * Complete product interface
+ * Base product interface containing common fields
  */
-export interface Product {
-    id: string;
+interface ProductBase {
     sku: string;
     name: string;
     description: string;
@@ -73,8 +72,14 @@ export interface Product {
     weight: ProductWeight;
     material: ProductMaterial;
     edition: EditionInfo;
-    images: ProductImages;
     tags?: string[];
+}
+/**
+ * Complete product interface including metadata
+ */
+export interface Product extends ProductBase {
+    id: string;
+    images: ProductImages;
     createdAt: Date;
     updatedAt: Date;
     deletedAt?: Date;
@@ -82,18 +87,23 @@ export interface Product {
 /**
  * Product creation DTO
  */
-export type CreateProductDTO = Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
+export type CreateProductDTO = ProductBase & {
+    images: ProductImages;
+};
 /**
  * Product update DTO
  */
 export type UpdateProductDTO = Partial<CreateProductDTO>;
-export interface ProductFormData extends Omit<CreateProductDTO, 'images'> {
+/**
+ * Form data interface for handling file uploads
+ */
+export interface ProductFormData extends ProductBase {
     thumbnailFile?: File;
     mainImageFiles?: FileList;
     threeSixtyFiles?: FileList;
 }
 /**
- * Product query parameters
+ * Product query parameters for filtering and pagination
  */
 export interface ProductQueryParams {
     category?: ProductCategory;
@@ -106,3 +116,4 @@ export interface ProductQueryParams {
     page?: number;
     limit?: number;
 }
+export {};
